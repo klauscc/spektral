@@ -34,6 +34,10 @@ def dot(a, b, transpose_a=False, transpose_b=False):
     :param transpose_b: bool, transpose innermost two dimensions of b.
     :return: Tensor or SparseTensor with rank 2 or 3.
     """
+    if transpose_a == False and transpose_b == False and isinstance(
+            a, tf.SparseTensor) and isinstance(b, tf.Tensor) and tf.keras.backend.ndim(b) == 2:
+        return tf.sparse.sparse_dense_matmul(a, b)
+
     a_is_sparse_tensor = isinstance(a, tf.SparseTensor)
     b_is_sparse_tensor = isinstance(b, tf.SparseTensor)
     if a_is_sparse_tensor:
@@ -107,9 +111,7 @@ def matmul_AT_B(a, b):
         # Batch (rank(a)=3, rank(b)=3)
         a_t = ops.transpose(a, (0, 2, 1))
     else:
-        raise ValueError('Expected ranks to be 2 or 3, got {} and {}'.format(
-            K.ndim(a), K.ndim(b)
-        ))
+        raise ValueError('Expected ranks to be 2 or 3, got {} and {}'.format(K.ndim(a), K.ndim(b)))
 
     return matmul_A_B(a_t, b)
 
@@ -131,9 +133,7 @@ def matmul_A_BT(a, b):
         # Batch (rank(a)=3, rank(b)=3)
         b_t = ops.transpose(b, (0, 2, 1))
     else:
-        raise ValueError('Expected ranks to be 2 or 3, got {} and {}'.format(
-            K.ndim(a), K.ndim(b)
-        ))
+        raise ValueError('Expected ranks to be 2 or 3, got {} and {}'.format(K.ndim(a), K.ndim(b)))
 
     return matmul_A_B(a, b_t)
 
